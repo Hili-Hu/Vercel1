@@ -1,6 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Priority = 'high' | 'medium' | 'low';
 type Category = 'work' | 'life' | 'study' | 'other';
@@ -37,14 +43,7 @@ export default function Home() {
 
   const addTodo = () => {
     if (!input.trim()) return;
-    setTodos([...todos, {
-      id: Date.now(),
-      text: input,
-      done: false,
-      priority,
-      dueDate,
-      category
-    }]);
+    setTodos([...todos, { id: Date.now(), text: input, done: false, priority, dueDate, category }]);
     setInput('');
     setDueDate('');
   };
@@ -88,89 +87,101 @@ export default function Home() {
     rate: todos.length ? Math.round((todos.filter(t => t.done).length / todos.length) * 100) : 0
   };
 
-  const priorityColors = {
-    high: '#ff4444',
-    medium: '#ffaa00',
-    low: '#44ff44'
-  };
-
-  const categoryLabels = {
-    work: '工作',
-    life: '生活',
-    study: '学习',
-    other: '其他'
-  };
+  const priorityColors = { high: 'destructive', medium: 'default', low: 'secondary' } as const;
+  const categoryLabels = { work: '工作', life: '生活', study: '学习', other: '其他' };
 
   return (
-    <div style={{ maxWidth: 800, margin: '30px auto', padding: 20 }}>
-      <h1>待办事项</h1>
+    <div className="container max-w-4xl mx-auto p-6 space-y-6">
+      <h1 className="text-3xl font-bold">待办事项</h1>
 
-      <div style={{ background: '#f5f5f5', padding: 15, borderRadius: 8, marginBottom: 20 }}>
-        <div style={{ display: 'flex', gap: 20, fontSize: 14 }}>
+      <Card>
+        <CardHeader>
+          <CardTitle>统计</CardTitle>
+        </CardHeader>
+        <CardContent className="flex gap-6 text-sm">
           <span>总计: {stats.total}</span>
           <span>已完成: {stats.done}</span>
           <span>待完成: {stats.pending}</span>
           <span>完成率: {stats.rate}%</span>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div style={{ marginBottom: 20 }}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && addTodo()}
-          placeholder="添加新任务..."
-          style={{ width: '100%', padding: 10, fontSize: 16, marginBottom: 10 }}
-        />
-        <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-          <select value={priority} onChange={(e) => setPriority(e.target.value as Priority)} style={{ padding: 8 }}>
-            <option value="low">低优先级</option>
-            <option value="medium">中优先级</option>
-            <option value="high">高优先级</option>
-          </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value as Category)} style={{ padding: 8 }}>
-            <option value="work">工作</option>
-            <option value="life">生活</option>
-            <option value="study">学习</option>
-            <option value="other">其他</option>
-          </select>
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            style={{ padding: 8 }}
+      <Card>
+        <CardHeader>
+          <CardTitle>添加任务</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addTodo()}
+            placeholder="添加新任务..."
           />
-          <button onClick={addTodo} style={{ padding: '8px 20px', fontSize: 16 }}>添加</button>
-        </div>
-      </div>
+          <div className="flex gap-3">
+            <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">低优先级</SelectItem>
+                <SelectItem value="medium">中优先级</SelectItem>
+                <SelectItem value="high">高优先级</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
+              <SelectTrigger className="w-28">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="work">工作</SelectItem>
+                <SelectItem value="life">生活</SelectItem>
+                <SelectItem value="study">学习</SelectItem>
+                <SelectItem value="other">其他</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-40" />
+            <Button onClick={addTodo}>添加</Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div style={{ marginBottom: 20, display: 'flex', gap: 10 }}>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="搜索..."
-          style={{ flex: 1, padding: 8 }}
-        />
-        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value as Category | 'all')} style={{ padding: 8 }}>
-          <option value="all">全部分类</option>
-          <option value="work">工作</option>
-          <option value="life">生活</option>
-          <option value="study">学习</option>
-          <option value="other">其他</option>
-        </select>
-        <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value as Priority | 'all')} style={{ padding: 8 }}>
-          <option value="all">全部优先级</option>
-          <option value="high">高</option>
-          <option value="medium">中</option>
-          <option value="low">低</option>
-        </select>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>筛选</CardTitle>
+        </CardHeader>
+        <CardContent className="flex gap-3">
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索..." className="flex-1" />
+          <Select value={filterCategory} onValueChange={(v) => setFilterCategory(v as Category | 'all')}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部分类</SelectItem>
+              <SelectItem value="work">工作</SelectItem>
+              <SelectItem value="life">生活</SelectItem>
+              <SelectItem value="study">学习</SelectItem>
+              <SelectItem value="other">其他</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterPriority} onValueChange={(v) => setFilterPriority(v as Priority | 'all')}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部优先级</SelectItem>
+              <SelectItem value="high">高</SelectItem>
+              <SelectItem value="medium">中</SelectItem>
+              <SelectItem value="low">低</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
 
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <div className="space-y-2">
         {filtered.map((todo, index) => {
           const daysLeft = getDaysLeft(todo.dueDate);
           return (
-            <li
+            <Card
               key={todo.id}
               draggable
               onDragStart={(e) => e.dataTransfer.setData('index', index.toString())}
@@ -184,56 +195,41 @@ export default function Home() {
                 newTodos.splice(toIndex, 0, moved);
                 setTodos(newTodos);
               }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: 12,
-                borderLeft: `4px solid ${priorityColors[todo.priority]}`,
-                background: '#fff',
-                marginBottom: 8,
-                borderRadius: 4,
-                cursor: 'move'
-              }}
+              className="cursor-move"
             >
-              <input
-                type="checkbox"
-                checked={todo.done}
-                onChange={() => toggleTodo(todo.id)}
-              />
-              {editingId === todo.id ? (
-                <input
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveEdit(todo.id)}
-                  onBlur={() => saveEdit(todo.id)}
-                  autoFocus
-                  style={{ flex: 1, padding: 5 }}
-                />
-              ) : (
-                <span
-                  onDoubleClick={() => startEdit(todo)}
-                  style={{
-                    flex: 1,
-                    textDecoration: todo.done ? 'line-through' : 'none',
-                    color: todo.done ? '#999' : '#000'
-                  }}
-                >
-                  {todo.text}
-                </span>
-              )}
-              <span style={{ fontSize: 12, color: '#666' }}>{categoryLabels[todo.category]}</span>
-              {todo.dueDate && (
-                <span style={{ fontSize: 12, color: daysLeft && daysLeft < 0 ? 'red' : '#666' }}>
-                  {daysLeft !== null && (daysLeft < 0 ? `逾期${-daysLeft}天` : daysLeft === 0 ? '今天' : `剩${daysLeft}天`)}
-                </span>
-              )}
-              <button onClick={() => startEdit(todo)} style={{ padding: '5px 10px' }}>编辑</button>
-              <button onClick={() => deleteTodo(todo.id)} style={{ padding: '5px 10px' }}>删除</button>
-            </li>
+              <CardContent className="flex items-center gap-3 p-4">
+                <Checkbox checked={todo.done} onCheckedChange={() => toggleTodo(todo.id)} />
+                {editingId === todo.id ? (
+                  <Input
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && saveEdit(todo.id)}
+                    onBlur={() => saveEdit(todo.id)}
+                    autoFocus
+                    className="flex-1"
+                  />
+                ) : (
+                  <span
+                    onDoubleClick={() => startEdit(todo)}
+                    className={`flex-1 ${todo.done ? 'line-through text-muted-foreground' : ''}`}
+                  >
+                    {todo.text}
+                  </span>
+                )}
+                <Badge variant={priorityColors[todo.priority]}>{todo.priority === 'high' ? '高' : todo.priority === 'medium' ? '中' : '低'}</Badge>
+                <Badge variant="outline">{categoryLabels[todo.category]}</Badge>
+                {todo.dueDate && (
+                  <Badge variant={daysLeft && daysLeft < 0 ? 'destructive' : 'secondary'}>
+                    {daysLeft !== null && (daysLeft < 0 ? `逾期${-daysLeft}天` : daysLeft === 0 ? '今天' : `剩${daysLeft}天`)}
+                  </Badge>
+                )}
+                <Button variant="outline" size="sm" onClick={() => startEdit(todo)}>编辑</Button>
+                <Button variant="destructive" size="sm" onClick={() => deleteTodo(todo.id)}>删除</Button>
+              </CardContent>
+            </Card>
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 }
